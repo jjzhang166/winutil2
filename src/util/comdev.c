@@ -1,11 +1,11 @@
 /*
- * Extends.cpp
+ * comdev.cpp
  *
  *  Created on: 2012-9-26
  *      Author: zhangbo
  */
 
-#include "comapi.h"
+#include "comdev.h"
 
 #include <assert.h>
 #include <stdio.h>
@@ -21,23 +21,24 @@
 #include "current_com.h"
 #include "log.h"
 
-static int setup = 0;
-int com_enable = 0;
-static int output = 0;
-static int direct_mode = 1;
-static int line_mode = 0;
-static int running = 0;
+#define COM_READ_BUFFER_SIZE 1024
 
-static void comapi_read_proc_start();
+static BOOLEAN setup = 0;
+static BOOLEAN com_enable = 0;
+static BOOLEAN output = 0;
+static BOOLEAN direct_mode = 1;
+static BOOLEAN line_mode = 0;
+BOOLEAN reading = 0;
+static void (*comdev_ex_send)(void*, size_t);
+static void comdev_read_proc_start();
 
-extern void comapi_ex_send(char* data, int len);
-
-int comapi_setup(unsigned char com, int baudRate, int parity, int byteSize, int stopBits) {
+BOOLEAN comdev_setup(unsigned char com, int baudRate, int parity, int byteSize, int stopBits, void (*recv)(void*, size_t)) {
 	COMPARAM p;
 	p.bEvtChar = 0x0d;
 	p.fBinary = 1;
 
 	p.bComId = com;
+	comdev_ex_send = recv;
 
 	switch (baudRate) {
 	case 0:
@@ -118,15 +119,12 @@ int comapi_setup(unsigned char com, int baudRate, int parity, int byteSize, int 
 	setup = 1;
 	if (com_enable && setup) {
 		current_com_open();
-		comapi_read_proc_start();
+		comdev_read_proc_start();
 	}
 	return TRUE;
 }
 
-#define COM_READ_BUFFER_SIZE 1024
-
-
-static void comapi_send(unsigned char* data, unsigned long len) {
+static void comdev_send(unsigned char* data, unsigned long len) {
 	if (!direct_mode) {
 		int i = 0, j = 0;
 		char* pout = malloc(len * 3);
@@ -135,10 +133,10 @@ static void comapi_send(unsigned char* data, unsigned long len) {
 			pout[j++] = data[i];
 			pout[j++] = 0x81;
 		}
-//		comapi_ex_send(pout, len * 3);
+		comdev_ex_send(pout, len * 3);
 		free(pout);
 	} else {
-//		comapi_ex_send((char*) data, len);
+		comdev_ex_send((char*) data, len);
 	}
 }
 
@@ -146,9 +144,10 @@ static unsigned char inBuffer[COM_READ_BUFFER_SIZE];
 static unsigned long inLen = 0;
 static unsigned char tempBuffer[COM_READ_BUFFER_SIZE * 10];
 static long tempLen = 0;
-static unsigned long WINAPI comapi_read_thread(void* device) {
+static unsigned long WINAPI comdev_read_thread(void* device) {
 	log_write_str(COM_INFO, "com_read_thread start");
-	while (running) {
+	reading = 1;
+	while (reading) {
 		Sleep(5);
 		if (!com_enable) {
 			continue;
@@ -165,14 +164,14 @@ static unsigned long WINAPI comapi_read_thread(void* device) {
 					memcpy(tempBuffer + tempLen, inBuffer + last, i + 1 - last);
 					tempLen += i + 1 - last;
 					last = i + 1;
-					comapi_send(tempBuffer, tempLen);
+					comdev_send(tempBuffer, tempLen);
 					tempLen = 0;
 				}
 			}
 			memcpy(tempBuffer + tempLen, inBuffer + last, i - last);
 			tempLen += i - last;
 		} else {
-			comapi_send(inBuffer, inLen);
+			comdev_send(inBuffer, inLen);
 		}
 	}
 	log_write_str(COM_INFO, "com_read_thread ended");
@@ -180,36 +179,35 @@ static unsigned long WINAPI comapi_read_thread(void* device) {
 	return 0;
 }
 
-static void comapi_read_proc_start() {
-	if (running == 0) {
-		CreateThread(NULL, 0, comapi_read_thread, NULL, 0, 0);
-		running = 1;
+static void comdev_read_proc_start() {
+	if (reading == 0) {
+		CreateThread(NULL, 0, comdev_read_thread, NULL, 0, 0);
+		reading = 1;
 	}
 }
 
-static void comapi_read_proc_stop() {
-	running = 0;
+static void comdev_read_proc_stop() {
+	reading = 0;
 	Sleep(10);
 }
 
-int comapi_set_enable(int state) {
+BOOLEAN comdev_set_enable(BOOLEAN state) {
 	com_enable = state;
 	if (com_enable && setup) {
 		if (current_com_open() == -1) {
 			com_enable = 0;
 			return FALSE;
 		}
-		comapi_read_proc_start();
+		comdev_read_proc_start();
 	} else {
-		comapi_read_proc_stop();
+		comdev_read_proc_stop();
 		current_com_close();
-		//comchannel = 0;
 		setup = 0;
 	}
 	return TRUE;
 }
 
-void comapi_set_output(int state) {
+void comdev_set_output(BOOLEAN state) {
 	output = state;
 	if (state) {
 		log_write_str(COM_INFO, "com out 1");
@@ -218,11 +216,11 @@ void comapi_set_output(int state) {
 	}
 }
 
-int comapi_writing_enable() {
+BOOLEAN comdev_can_write() {
 	return output && com_enable;
 }
 
-void comapi_set_line_mode(int state) {
+void comdev_set_line_mode(BOOLEAN state) {
 	line_mode = state;
 	if (state) {
 		log_write_str(COM_INFO, "line mode 1");
@@ -231,7 +229,7 @@ void comapi_set_line_mode(int state) {
 	}
 }
 
-void comapi_set_direct_mode(int state) {
+void comdev_set_direct_mode(BOOLEAN state) {
 	direct_mode = state;
 	if (state) {
 		log_write_str(COM_INFO, "direct mode 1");
@@ -240,6 +238,7 @@ void comapi_set_direct_mode(int state) {
 	}
 }
 
-int comapi_receive(unsigned char* data, unsigned long len) {
+size_t comdev_write(void* data, size_t len) {
 	return current_com_write(data, len);
 }
+

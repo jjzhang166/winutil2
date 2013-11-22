@@ -15,6 +15,7 @@
 #include <list>
 #include <vector>
 #include <string>
+#include "../util/types.h"
 using namespace std;
 
 class Util {
