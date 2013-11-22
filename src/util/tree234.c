@@ -29,7 +29,7 @@
 #include <stdlib.h>
 #include <assert.h>
 
-#include "puttymem.h"
+#include "memory.h"
 #include "tree234.h"
 
 #ifdef TEST

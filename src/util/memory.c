@@ -1,10 +1,8 @@
 /*
- * PuTTY memory-handling implements.
+ * memory-handling implements.
  */
 
-
-#include "puttymem.h"		       /* for size_t */
-
+#include "memory.h"		       /* for size_t */
 
 #include <stdio.h>
 #include <stdlib.h>
