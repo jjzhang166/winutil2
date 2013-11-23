@@ -28,9 +28,14 @@ static BOOLEAN com_enable = 0;
 static BOOLEAN output = 0;
 static BOOLEAN direct_mode = 1;
 static BOOLEAN line_mode = 0;
-BOOLEAN reading = 0;
+BOOLEAN comdev_reading = 0;
+char comdev_char = 0;
 static void (*comdev_ex_send)(void*, size_t);
 static void comdev_read_proc_start();
+
+void comdev_select_com(char com) {
+	comdev_char = com;
+}
 
 BOOLEAN comdev_setup(unsigned char com, int baudRate, int parity, int byteSize, int stopBits, void (*recv)(void*, size_t)) {
 	COMPARAM p;
@@ -146,8 +151,8 @@ static unsigned char tempBuffer[COM_READ_BUFFER_SIZE * 10];
 static long tempLen = 0;
 static unsigned long WINAPI comdev_read_thread(void* device) {
 	log_write_str(COM_INFO, "com_read_thread start");
-	reading = 1;
-	while (reading) {
+	comdev_reading = 1;
+	while (comdev_reading) {
 		Sleep(5);
 		if (!com_enable) {
 			continue;
@@ -180,14 +185,14 @@ static unsigned long WINAPI comdev_read_thread(void* device) {
 }
 
 static void comdev_read_proc_start() {
-	if (reading == 0) {
+	if (comdev_reading == 0) {
 		CreateThread(NULL, 0, comdev_read_thread, NULL, 0, 0);
-		reading = 1;
+		comdev_reading = 1;
 	}
 }
 
 static void comdev_read_proc_stop() {
-	reading = 0;
+	comdev_reading = 0;
 	Sleep(10);
 }
 
@@ -202,6 +207,7 @@ BOOLEAN comdev_set_enable(BOOLEAN state) {
 	} else {
 		comdev_read_proc_stop();
 		current_com_close();
+		comdev_char = 0;
 		setup = 0;
 	}
 	return TRUE;

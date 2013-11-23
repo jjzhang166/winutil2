@@ -15,6 +15,8 @@
 extern "C" {
 #endif
 
+void comdev_select_com(char com);
+
 /**
  * 配置当前的串口设备通讯参数
  */
