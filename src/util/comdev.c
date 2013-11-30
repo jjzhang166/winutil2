@@ -33,6 +33,8 @@ char comdev_char = 0;
 static void (*comdev_ex_send)(void*, size_t);
 static void comdev_read_proc_start();
 
+#define COM_INFO "COM_INFO"
+
 void comdev_select_com(char com) {
 	comdev_char = com;
 }
