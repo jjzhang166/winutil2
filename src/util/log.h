@@ -8,18 +8,6 @@
 #ifndef LOG_H_
 #define LOG_H_
 
-#define SOCK_SEND "SCK_SEND"
-#define SOCK_RECV "SCK_RECV"
-#define COM_INFO  "COM_INFO"
-#define COM_OPEN  "COM_OPEN"
-#define COM_SEND  "COM_SEND"
-#define COM_RECV  "COM_RECV"
-#define COM_CLOS  "COM_CLOS"
-#define PRT_DATA  "PRT_DATA"
-#define PRT_ENDS  "PRT_ENDS"
-#define SYS_INFO  "SYS_INFO"
-#define MSG_INFO  "MSG_INFO"
-
 #ifdef __cplusplus
 extern "C"
 {

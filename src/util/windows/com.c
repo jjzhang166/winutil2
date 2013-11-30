@@ -12,6 +12,11 @@
 #include "../types.h"
 #include "../log.h"
 
+#define COM_OPEN  "COM_OPEN"
+#define COM_SEND  "COM_SEND"
+#define COM_RECV  "COM_RECV"
+#define COM_CLOS  "COM_CLOS"
+
 void* com_open(LPCOMPARAM param) {
 	char com[16];
 	DCB dcb;
