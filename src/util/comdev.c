@@ -202,7 +202,7 @@ BOOLEAN comdev_set_enable(BOOLEAN state) {
 	com_enable = state;
 	if (com_enable && setup) {
 		if (current_com_open() == -1) {
-			com_enable = 0;
+//			com_enable = 0;
 			return FALSE;
 		}
 		comdev_read_proc_start();
