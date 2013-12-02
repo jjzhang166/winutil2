@@ -951,6 +951,7 @@ static void *delpos234_internal(tree234 * t, int index) {
 			index = a->counts[0] + a->counts[1] + 1;
 		}
 	}
+	return NULL;
 }
 void *delpos234(tree234 * t, int index) {
 	if (index < 0 || index >= countnode234(t->root))
