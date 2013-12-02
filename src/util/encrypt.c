@@ -63,17 +63,8 @@ unsigned char *base64Decode(char *src) {
 	}
 	return dst;
 }
-int replaceStr(char *inStr) {
-	int i = 0;
-	for (i = 0; i < strlen(inStr); i++) {
-		if (inStr[i] == '\n') {
-			inStr[i] = "";
-		}
-	}
-	return 0;
-}
 
-tranStrTo2Bit(char *str, char *out2bit) {
+void tranStrTo2Bit(char *str, char *out2bit) {
 	//把字符串16进制数转换成字符流
 	char data[9];
 	char tmp[3];
@@ -83,35 +74,29 @@ tranStrTo2Bit(char *str, char *out2bit) {
 		tmp[0] = *(str + i * 2);
 		tmp[1] = *(str + i * 2 + 1);
 		tmp[2] = 0;
-		//sprintf(tmp,"45");
 		out2bit[i] = strtol(tmp, NULL, 16);
 	}
 }
 
-int encrypt_3des(const char *key1, const char *key2, const char *key3, const unsigned char *en_data,
-		unsigned char *outData) {
+int encrypt_3des(const unsigned char *key1, const unsigned char *key2, const unsigned char *key3, const unsigned char *in, size_t inLen,
+		char *out) {
 	int i = 0;
-	char inputData[9]; //每次加密8个字节
-	char * ptr = NULL;
-	char en_out_put[9];
+	unsigned char input[9]; //每次加密8个字节
+	const unsigned char * ptr = NULL;
+	unsigned char output[9];
 	char strChar[128];
-	int endataLen = strlen(en_data);
-	int len = 0;
-	ptr = en_data;
+	ptr = in;
 
-	while (ptr < (en_data + endataLen)) {
-		memset(inputData, 0x00, 9);
-		memcpy(inputData, ptr, 8);
-		memset(en_out_put, 0x00, 9);
-		des(inputData, key1, en_out_put, DES_ENCRYPT);
-		des(en_out_put, key2, inputData, DES_DECRYPT);
-		des(inputData, key3, en_out_put, DES_ENCRYPT);
-		//取前8个字节
-		len = strlen(en_out_put);
-		memset(strChar, 0x00, 128);
+	while (ptr < (in + inLen)) {
+		memset(input, 0x00, 9);
+		memcpy(input, ptr, 8);
+		memset(output, 0x00, 9);
+		des(input, key1, output, DES_ENCRYPT);
+		des(output, key2, input, DES_DECRYPT);
+		des(input, key3, output, DES_ENCRYPT);
 		for (i = 0; i < 8; i++) {
-			sprintf(strChar, "%02x", (unsigned char) en_out_put[i]); //把二进制密文转换成字符串
-			strcat(outData, strChar);
+			sprintf(strChar, "%02x", (unsigned char) output[i]); //把二进制密文转换成字符串
+			strcat(out, strChar);
 		}
 
 		ptr = ptr + 8;
@@ -119,45 +104,32 @@ int encrypt_3des(const char *key1, const char *key2, const char *key3, const uns
 	return 0;
 }
 
-int decrypt_3des(const char *key1, const char *key2, const char *key3, const unsigned char *en_data,
-		unsigned char *outData) {
-	char inputData[17]; //每次加密8个字节
-	char * ptr = NULL;
-	char *outPtr = NULL;
-	char en_out_put[9];
-	char strChar[9];
-	char base64OutData[9];
-	int endataLen = strlen(en_data);
-	ptr = en_data;
-	outPtr = outData;
+int decrypt_3des(const unsigned char *key1, const unsigned char *key2, const unsigned char *key3, const unsigned char *in, size_t inLen,
+		char *out) {
+	int i = 0;
+	unsigned char input[9]; //每次加密8个字节
+	const unsigned char * ptr = NULL;
+	unsigned char output[9];
+	char strChar[128];
+	ptr = in;
 
-	while (ptr < (en_data + endataLen)) {
-		memset(inputData, 0x00, 17);
-		memcpy(inputData, ptr, 16);
-		//strncpy(inputData,ptr,12);
-		memset(base64OutData, 0x00, 9);
-		tranStrTo2Bit(inputData, base64OutData);
-
-		//
-		//sprintf(base64OutData,"%s",base64Decode(inputData));//base64解码
-		//replaceStr(base64OutData);
-
-		memset(en_out_put, 0x00, 9);
-		des(base64OutData, key3, en_out_put, DES_DECRYPT);
-		des(en_out_put, key2, base64OutData, DES_ENCRYPT);
-		des(base64OutData, key1, en_out_put, DES_DECRYPT);
-		//取前8个字节
-		memset(strChar, 0x00, 9);
-		sprintf(outPtr, "%s", en_out_put);
-		//memcpy(strChar,en_out_put,8);
-		//strcat(outData,strChar);
-		outPtr = outPtr + 8;
-		ptr = ptr + 16;
+	while (ptr < (in + inLen)) {
+		memset(input, 0x00, 9);
+		memcpy(input, ptr, 8);
+		memset(output, 0x00, 9);
+		des(input, key3, output, DES_DECRYPT);
+		des(output, key2, input, DES_ENCRYPT);
+		des(input, key1, output, DES_DECRYPT);
+		for (i = 0; i < 8; i++) {
+			sprintf(strChar, "%02x", (unsigned char) output[i]); //把二进制密文转换成字符串
+			strcat(out, strChar);
+		}
+		ptr = ptr + 8;
 	}
 	return 0;
 }
 
-int md5_string(const unsigned char *data, unsigned long len, char *strMd5) {
+int md5_string(const unsigned char *data, unsigned long len,  char *md5) {
 	MD5_CTX context;
 	int i = 0;
 	unsigned char digest[16];
@@ -172,7 +144,7 @@ int md5_string(const unsigned char *data, unsigned long len, char *strMd5) {
 		sprintf(ptr, "%02X", (unsigned char) digest[i]);
 		ptr = ptr + 2;
 	};
-	sprintf(strMd5, "%s", strChar);
+	sprintf(md5, "%s", strChar);
 	return 0;
 }
 
