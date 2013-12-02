@@ -5,13 +5,13 @@
 extern "C" {
 #endif
 
-int encrypt_3des(char *key1, char *key2, char *key3, unsigned char *in,
+int encrypt_3des(const char *key1, const char *key2, const char *key3, const unsigned char *in,
 		unsigned char *out);
 
-int decrypt_3des(char *key1, char *key2, char *key3, unsigned char *in,
+int decrypt_3des(const char *key1, const char *key2, const char *key3, const unsigned char *in,
 		unsigned char *out);
 
-int md5_string(unsigned char *data, unsigned long len, char *strMd5);
+int md5_string(const unsigned char *data, unsigned long len, char *strMd5);
 
 #ifdef __cplusplus
 }

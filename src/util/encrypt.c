@@ -88,7 +88,7 @@ tranStrTo2Bit(char *str, char *out2bit) {
 	}
 }
 
-int encrypt_3des(char *key1, char *key2, char *key3, unsigned char *en_data,
+int encrypt_3des(const char *key1, const char *key2, const char *key3, const unsigned char *en_data,
 		unsigned char *outData) {
 	int i = 0;
 	char inputData[9]; //每次加密8个字节
@@ -119,7 +119,7 @@ int encrypt_3des(char *key1, char *key2, char *key3, unsigned char *en_data,
 	return 0;
 }
 
-int decrypt_3des(char *key1, char *key2, char *key3, unsigned char *en_data,
+int decrypt_3des(const char *key1, const char *key2, const char *key3, const unsigned char *en_data,
 		unsigned char *outData) {
 	char inputData[17]; //每次加密8个字节
 	char * ptr = NULL;
@@ -157,7 +157,7 @@ int decrypt_3des(char *key1, char *key2, char *key3, unsigned char *en_data,
 	return 0;
 }
 
-int md5_string(unsigned char *data, unsigned long len, char *strMd5) {
+int md5_string(const unsigned char *data, unsigned long len, char *strMd5) {
 	MD5_CTX context;
 	int i = 0;
 	unsigned char digest[16];
