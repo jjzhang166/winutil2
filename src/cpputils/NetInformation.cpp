@@ -13,7 +13,7 @@ NetInformation::NetInformation(const string& host, int port, const string& url,
 		const unsigned long size) :
 		InfoDownloader(size) {
 	request.SetHost(host);
-	request.SetPort(port);
+	request.SetIpPort(port);
 	request.SetUrl(url);
 	request.SetListener(this);
 }

@@ -28,12 +28,12 @@ public:
 	virtual ~RequestParameter();
 
 	void SetHost(const string& host);
-	void SetPort(int port);
+	void SetIpPort(int port);
 	void SetUrl(const string& url);
 	void SetTimeout(unsigned long timeout);
 
 	string GetHost();
-	int GetPort();
+	int GetIpPort();
 	string GetUrl();
 	unsigned long GetTimeout();
 };

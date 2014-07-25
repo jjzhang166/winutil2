@@ -29,8 +29,8 @@ public:
 	void SetHost(const string& host);
 	string GetHost();
 
-	void SetPort(int port);
-	int GetPort();
+	void SetIpPort(int port);
+	int GetIpPort();
 
 	void SetTimeout(unsigned long timeout);
 	unsigned long GetTimeout();

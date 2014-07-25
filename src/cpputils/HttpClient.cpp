@@ -53,7 +53,7 @@ string HttpClient::GetHost() {
 	return this->host;
 }
 
-void HttpClient::SetPort(int port) {
+void HttpClient::SetIpPort(int port) {
 	this->port = port;
 }
 
@@ -61,7 +61,7 @@ void HttpClient::SetTimeout(unsigned long timeout) {
 	this->timeout = timeout;
 }
 
-int HttpClient::GetPort() {
+int HttpClient::GetIpPort() {
 	return this->port;
 }
 

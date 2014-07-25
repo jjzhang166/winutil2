@@ -37,8 +37,8 @@ public:
 	void SetId(const string& id);
 	string GetId();
 
-	void SetPort(int port);
-	int GetPort();
+	void SetIpPort(int port);
+	int GetIpPort();
 
 	void SetTimeout(unsigned long timeout);
 	unsigned long GetTimeout();

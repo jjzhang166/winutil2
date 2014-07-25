@@ -34,7 +34,7 @@ HttpRequest& HttpRequest::Append(const string& name, const string& value) {
 
 HttpRequest& HttpRequest::SetRequestParameter(RequestParameter& param) {
 	this->SetHost(param.GetHost());
-	this->SetPort(param.GetPort());
+	this->SetIpPort(param.GetIpPort());
 	this->SetUrl(param.GetUrl());
 	this->SetTimeout(param.GetTimeout());
 	this->SetParameters(param);
@@ -49,7 +49,7 @@ string HttpRequest::GetHost() {
 	return this->host;
 }
 
-void HttpRequest::SetPort(int port) {
+void HttpRequest::SetIpPort(int port) {
 	this->port = port;
 }
 
@@ -57,7 +57,7 @@ void HttpRequest::SetTimeout(unsigned long timeout) {
 	this->timeout = timeout;
 }
 
-int HttpRequest::GetPort() {
+int HttpRequest::GetIpPort() {
 	return this->port;
 }
 

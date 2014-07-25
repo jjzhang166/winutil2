@@ -44,7 +44,7 @@ void RequestParameter::SetHost(const string& host) {
 	this->host = host;
 }
 
-void RequestParameter::SetPort(int port) {
+void RequestParameter::SetIpPort(int port) {
 	this->port = port;
 }
 
@@ -56,7 +56,7 @@ string RequestParameter::GetHost() {
 	return this->host;
 }
 
-int RequestParameter::GetPort() {
+int RequestParameter::GetIpPort() {
 	return this->port;
 }
 

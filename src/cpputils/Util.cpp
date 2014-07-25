@@ -344,7 +344,7 @@ bool Util::Download(string host, string url, int port, string file) {
 	request.SetListener(&downloader);
 
 	request.SetHost(host);
-	request.SetPort(port);
+	request.SetIpPort(port);
 	request.SetUrl(url);
 	return request.Get(10);
 }
@@ -700,7 +700,7 @@ unsigned long long Util::ToUnsignedLongLong(unsigned char* dt) {
 HttpRequest& Util::Request(const string& host, int port, const string& url) {
 	HttpRequest* p = new HttpRequest();
 	p->SetHost(host);
-	p->SetPort(port);
+	p->SetIpPort(port);
 	p->SetUrl(url);
 	return *p;
 }
