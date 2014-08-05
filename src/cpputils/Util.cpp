@@ -990,3 +990,10 @@ void Util::GetCurrentPath(char *path) {
 	GetModuleFileName(NULL, path, MAX_PATH);
 	(strrchr(path, '\\'))[0] = 0;
 }
+
+string Util::GetCurrentPath() {
+	char path[1024];
+	GetModuleFileName(NULL, path, MAX_PATH);
+	(strrchr(path, '\\'))[0] = 0;
+	return path;
+}

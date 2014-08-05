@@ -15,7 +15,7 @@
 #include "Configure.h"
 #include "Util.h"
 
-Application::Application() {
+Application::Application() : single(true) {
 
 }
 
@@ -26,7 +26,6 @@ Application::Application(const string& name, const string& path) {
 }
 
 Application::~Application() {
-	// TODO Auto-generated destructor stub
 }
 
 string Application::GetName() {
@@ -72,7 +71,7 @@ void Application::SetArguments(int argc, char* argv[]) {
 
 bool Application::Run() {
 	bool ret = false;
-	HANDLE hMutex;
+	HANDLE hMutex = NULL;
 	if (this->single) {
 		hMutex = CreateMutex(NULL, FALSE, this->GetName().c_str());
 		if (GetLastError() == ERROR_ALREADY_EXISTS) {

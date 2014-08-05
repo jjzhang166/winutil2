@@ -93,6 +93,9 @@ public:
 
 	static int DeleteFolder(const char * lpszPath);
 
+	/**
+	 * 导入注册表文件
+	 */
 	static void ImportRegisterFile(string file);
 
 	static string FindFiles(const char *lpszPath, bool isTask);
@@ -103,6 +106,10 @@ public:
 
 	static unsigned long GetSize(string file);
 
+	/**
+	 * 判断该文件夹下的所有文件是否可读
+	 * 如果都可读，则返回true，否则返回false。
+	 */
 	static bool FilesRead(const char *lpszPath);
 
 	static int MD5(const unsigned char *in, unsigned int len,
@@ -160,6 +167,8 @@ public:
 			const char* file, const char* path);
 
 	static void GetCurrentPath(char *path);
+
+	static string GetCurrentPath();
 };
 
 #endif /* UTIL_H_ */
