@@ -164,7 +164,7 @@ void ShoutDown1(DWORD verInfo, UINT type) {
 			HANDLE ToHandle;
 			TOKEN_PRIVILEGES tkp;
 			if (OpenProcessToken(GetCurrentProcess(),
-					TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, &ToHandle)) {
+			TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, &ToHandle)) {
 				LookupPrivilegeValue(NULL, SE_SHUTDOWN_NAME,
 						&tkp.Privileges[0].Luid);
 				tkp.PrivilegeCount = 1;
@@ -487,7 +487,7 @@ string Util::ToString(FILETIME time) {
 string Util::GetModifiedTime(string file) {
 	FILETIME fileTime;
 	HANDLE hFile = CreateFile(file.c_str(), GENERIC_READ, FILE_SHARE_READ, NULL,
-			OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+	OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 	GetFileTime(hFile, NULL, NULL, &fileTime);
 	FILETIME localTime;
 	FileTimeToLocalFileTime(&fileTime, &localTime);
@@ -497,7 +497,7 @@ string Util::GetModifiedTime(string file) {
 
 unsigned long Util::GetSize(string file) {
 	HANDLE hFile = CreateFile(file.c_str(), GENERIC_READ, FILE_SHARE_READ, NULL,
-			OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+	OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 	unsigned long h;
 	unsigned long l = GetFileSize(hFile, &h);
 	//unsigned long long size = (h << 32) + l;
@@ -714,43 +714,15 @@ string Util::ToString(int i) {
 }
 
 string Util::GetExeFile(const string& type) {
-	if (type == "chrome") {
-		return "C:\\Documents and Settings\\Administrator\\Local Settings\\Application Data\\Google\\Chrome\\Application\\chrome.exe";
-	} else if (type == "video") {
-		return "C:\\Program Files\\The KMPlayer\\KMPlayer.exe";
-	} else if (type == "gd") {
-		return "C:\\Program Files\\Sursen\\SepReader\\Reader.exe";
-	} else if (type == "word") {
-		return "C:\\Program Files\\Microsoft Office\\OFFICE12\\WINWORD.EXE";
-	} else if (type == "excel") {
-		return "C:\\Program Files\\Microsoft Office\\OFFICE12\\EXCEL.EXE";
-	} else if (type == "ppt") {
-		return "C:\\Program Files\\Microsoft Office\\OFFICE12\\PPTVIEW.EXE";
-	} else if (type == "pdf") {
-		return "C:\\Program Files\\Adobe\\Reader 10.0\\Reader\\AcroRd32.exe";
-	}
-	return "";
+	Properties prop;
+	prop.SafeLoad(Util::GetCurrentPath() + "\\apps.cfg");
+	return prop.GetString("application." + type);
 }
 
 string Util::GetProcess(const string& type) {
-	if (type == "chrome") {
-		return "chrome.exe";
-	} else if (type == "picture") {
-		return "rundll32.exe";
-	} else if (type == "video") {
-		return "kmplayer.exe";
-	} else if (type == "gd") {
-		return "reader.exe";
-	} else if (type == "word") {
-		return "winword.exe";
-	} else if (type == "excel") {
-		return "excel.exe";
-	} else if (type == "ppt") {
-		return "pptview.exe";
-	} else if (type == "pdf") {
-		return "acrord32.exe";
-	}
-	return "";
+	Properties prop;
+	prop.SafeLoad(Util::GetCurrentPath() + "\\apps.cfg");
+	return prop.GetString("process." + type);
 }
 
 string Util::GetSystemDir() {
@@ -808,7 +780,7 @@ void Util::SaveScreen(const string& filePath, void* hwnd) {
 	bih.biClrImportant = 0;
 
 	if (GetDIBits(hdcMem, hBitmap, 0, bih.biHeight, lpData, (BITMAPINFO*) &bih,
-			DIB_RGB_COLORS) == 0) {
+	DIB_RGB_COLORS) == 0) {
 		GlobalFree(hMem);
 		return;
 	}
@@ -977,7 +949,7 @@ BOOL Util::ShellExecuteLogon(const char* user, const char* pass,
 	wchar_t* wfile = Ansi2WChar(file);
 	wchar_t* wpath = Ansi2WChar(path);
 	BOOL ret = CreateProcessWithLogonW(wuser, L".", wpass, 0, NULL, wfile, 0,
-			NULL, wpath, &si, &pi);
+	NULL, wpath, &si, &pi);
 	printf("file:%s %d", file, GetLastError());
 	delete wuser;
 	delete wpass;
