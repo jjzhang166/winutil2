@@ -23,6 +23,8 @@ public:
 	Util();
 	virtual ~Util();
 
+	static BOOL ParseCommandLine(string cmdline, Properties& prop);
+
 	static const char* CreateGUID();
 
 	static vector<string> GetUUID(RequestParameter param, const string& path,

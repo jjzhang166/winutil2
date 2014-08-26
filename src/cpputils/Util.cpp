@@ -33,6 +33,19 @@ Util::Util() {
 Util::~Util() {
 }
 
+BOOL Util::ParseCommandLine(string cmdline, Properties& prop) {
+	vector<string> cmds = Util::Split(cmdline, ' ');
+	for (unsigned int i = 0; i < cmds.size(); i++) {
+		vector<string> nv = Util::Split(cmds[i], '=');
+		if (nv.size() == 2) {
+			prop.Put(nv[0], nv[1]);
+		} else {
+			return false;
+		}
+	}
+	return true;
+}
+
 const char* Util::CreateGUID() {
 	static char buf[64] = { 0 };
 	GUID guid;
