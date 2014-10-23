@@ -11,6 +11,9 @@
 #include "WinIo.h"
 #include <time.h>
 
+#include <stdio.h>
+#include "../log.h"
+
 //#define PRT_OLD
 
 typedef struct _LPT {
@@ -146,22 +149,6 @@ static BOOL wait(LPT* plpt) {
 		dwPortVal = dwPortVal & 0x0FF;
 		status = (byte) dwPortVal;
 
-//		if ((status & 0x80) == 0x00) {
-//			//判断S7位为低电平说明打印机不正常或忙状态,异常为0
-//			done = FALSE;
-//		} else if ((status & 0x20) == 0x20) {
-//			//判断S5位为低电平说明缺纸状态,异常为1
-//			done = FALSE;
-//		} else if ((status & 0x10) == 0x00) {
-//			//当打印机处于无效状态时，该信号就会变成低电平
-//			done = FALSE;
-//		} else if ((status & 0x08) == 0x00) {
-//			//判断S3位为低电平说明打印机未知错误,异常为0
-//			done = FALSE;
-//		} else {
-//			done = TRUE;
-//		}
-
 		if ((status & 0x98) != 0x98 || (status & 0x20)) {
 			done = FALSE;
 		} else {
@@ -174,21 +161,48 @@ static BOOL wait(LPT* plpt) {
 unsigned long lptwrite(void* lpt, const void* data, int len) {
 	LPT* plpt = (LPT*) lpt;
 	DWORD readCMD = 0;
+	DWORD dwPortVal = 0;
+	char info[256];
 	int i = 0;
 
 	GetPortVal(plpt->ctrl, &readCMD, 1);
+
+	//设置C0高电平
+	readCMD = readCMD | 0x01;
+	SetPortVal(plpt->ctrl, readCMD, 1);
+	Sleep(1);
+	GetPortVal(plpt->stat, &dwPortVal, 1);
+	sprintf(info, "STAT=%02X", (unsigned int)(dwPortVal & 0xFF));
+	log_write_str("PRT_INFO", info);
+
 	for (i = 0; i < len; i++) {
-
+		log_write_str("PRT_INFO", "0");
+		//置数据位
 		SetPortVal(plpt->data, *(((char*) data) + i), 1);
+		Sleep(1);
 
-		readCMD = readCMD | 0x09;
-		SetPortVal(plpt->ctrl, readCMD, 1);
-
+		log_write_str("PRT_INFO", "1");
+		//C0下降沿、上升沿写入打印机数据
 		readCMD = readCMD & 0xFE;
 		SetPortVal(plpt->ctrl, readCMD, 1);
+		Sleep(1);
 
-		while (wait(plpt) == FALSE) {
-			Sleep(1);
+		log_write_str("PRT_INFO", "2");
+		readCMD = readCMD | 0x01;
+		SetPortVal(plpt->ctrl, readCMD, 1);
+		Sleep(1);
+
+		//直到写入完毕
+		GetPortVal(plpt->stat, &dwPortVal, 1);
+
+		sprintf(info, "4 %02X %02X", i, (unsigned int)(dwPortVal & 0xFF));
+		log_write_str("PRT_INFO", info);
+
+		while ((dwPortVal & 0x80) == 0x00 && (dwPortVal & 0x40) == 0x40) {
+			GetPortVal(plpt->stat, &dwPortVal, 1);
+
+			sprintf(info, "%02X %02X", i, (unsigned int)(dwPortVal & 0xFF));
+			log_write_str("PRT_INFO", info);
 		}
 	}
 
